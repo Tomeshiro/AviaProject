@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+    db:
+        image: mysql:5.7
+        volumes:
+            - ./db_data:/var/lib/mysql
+            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_DATABASE: appDB
+            MYSQL_USER: user
+            MYSQL_PASSWORD: password
+
+    web:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "8000:80"
+        volumes:
+            - ./airlines:/var/www/html
+        links:
+            - db
+            
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin:latest
+        restart: always
+        environment:
+            PMA_HOST: db
+            PMA_USER: user
+            PMA_PASSWORD: password
+        ports:
+            - "8001:80"
+
+volumes:
+    db_data:
